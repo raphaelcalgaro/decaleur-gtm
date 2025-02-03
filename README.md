@@ -29,7 +29,7 @@ When the first event of a new session is not a page_view, the __traffic source a
 
 ## Usage
 1. Import the Templates into GTM:
-   - Import the page_view_first.tpl and the Send to secondLayer.tpl files into your GTM container.
+   - Import the decaleur.tpl and the Send to secondLayer.tpl files into your GTM container.
 
 2. Create the Decaleur tag
    - Go in the tag page
@@ -38,7 +38,7 @@ When the first event of a new session is not a page_view, the __traffic source a
    - Enter a name for the tag
    - Enter the name of the event that triggers your page_view
    - Add the "Initialization - All Pages" trigger
-   - Add the trigger that also fires on your page_view events.
+   - Add a trigger for the moments you want the events in the second layer to fire. In most cases that is the page_view or gtm.js.
 
 3. Create a JavaScript Variable for the flag pageViewDetected and a Data Layer Variable
    3.1 JavaScript Varaible
@@ -48,22 +48,25 @@ When the first event of a new session is not a page_view, the __traffic source a
      - Enter a name. I used "VarGlobale - window.pageViewDetected"
      - Enter the Global Cariable name as "window.pageViewDetected"
    3.2 Data Layer Variable
-     - Create a new dataLayer variable Where the Data Layer Variable Name is "eventName"
+     - Create a new dataLayer variable Where the Data Layer Variable Name is "eventName". I named mine "DLV - eventName".
 
 4. For each of the events that might be causing a problem with Unassigned traffic sources by firing before the page_view, edit the trigger, create a pre-page_view event copy and create a delayed event firing trigger
    4.1 edit the main trigger
        - Add a condition under "This trigger fires on"
-       - the variable name is the one defined in step 3.1
-       - Set is operator as "contains" and the value as true.
-       - Rename it so you uderstand that this tag will now only fire after the page_view.
-   4.2 Then create a copy of each 4.1 trigger for before the page_view is fired.
-       - On those set the javaScript variable defined at the last step as false
-       - Add these triggers to the problematic events but be carefull that all Event Settings Variable are still valid when the delayed event fires after the page_view
+       - the variable name is the one defined in step 3.1 (in my case it's "VarGlobale - window.pageViewDetected")
+       - Set its operator as "contains" and the value as true.
+       - Rename it so you uderstand that this tag will now only fire after the first of the event(s) you specified at the end of step 2.
+   4.2 Then create a copy of each 4.1 triggers. They will be added on all tags that may fire events before the page_view.
+       - On those set the javaScript variable defined at the last step (again, in my case it's "VarGlobale - window.pageViewDetected") as false 
+       - Add these triggers to the problematic events but verify that all Event Settings Variable are still valid when the delayed event fires after the page_view
    4.3 Create a copy of every 4.1 triggers
-       - in thess new copies change the javaScript variable we just added by the Data Layer Variable we created in step 3.2
-       - Set the Data Layer Variable's value to the original 4.1 trigger's event name
-       - Change the new trigger's Event name to "firingDelayedEvent"
-
+       - remove the condition we added in 4.1 under "This trigger fires on"
+       - add a new contition under "This trigger fires on"
+       - the variable name is the one defined in step 3.2 ( in my case it is "DLV - eventName")
+       - Set its operator as "contains" and the value as true.
+       - Set the value to the original 4.1 trigger's event name which should still be the current's trigger Event Name
+       - Change the trigger's Event name to "firingDelayedEvent"
+   
 7. Create a "Send to secondLayer" Tag for each of the events that might be causing a problem with Unassigned traffic sources
    - Go to the tag page and click new
    - Select the "Send to secondLayer" Tag
